@@ -4,7 +4,7 @@ transformTools = require 'browserify-transform-tools'
 TRANSFORM_NAME = "aliasify"
 
 # Returns replacement require, `null` to not change require, `false` to replace require with `{}`.
-getReplacement = (file, aliases, regexps) ->
+getReplacement = (file, aliases, regexps, opts) ->
     if regexps?
         for key of regexps
             re = new RegExp(key)
@@ -12,7 +12,7 @@ getReplacement = (file, aliases, regexps) ->
                 if regexps[key] == false
                     return false
                 else if typeof regexps[key] == "function"
-                    return regexps[key](file, key, re)
+                    return regexps[key](file, key, re, opts)
                 else
                     return file.replace(re, regexps[key])
 
@@ -48,7 +48,7 @@ makeTransform = (requireAliases) ->
 
         file = functionParams.args[0].value
         if file? and (aliases? or regexps?)
-            replacement = getReplacement(file, aliases, regexps)
+            replacement = getReplacement(file, aliases, regexps, opts)
             if replacement == false
                 result = "{}"
             else if replacement?
